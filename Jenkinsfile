@@ -18,7 +18,7 @@ pipeline {
           scannerHome = tool 'stone-sonar-scanner'
         }
         steps{
-        withSonarQubeEnv('sonar-server') { // If you have configured more than one global server connection, you can specify its name
+        withSonarQubeEnv('stone-sonar-server') { // If you have configured more than one global server connection, you can specify its name
         sh "${scannerHome}/bin/sonar-scanner"
         } 
         }
