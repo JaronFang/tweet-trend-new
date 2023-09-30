@@ -10,45 +10,42 @@ pipeline {
     stages {
         stage("build"){
             steps {
-                 echo "----------- build started ----------"
+                echo "----------- build started ----------"
                 sh 'mvn clean deploy -Dmaven.test.skip=true'
-                 echo "----------- build complted ----------"
+                echo "----------- build completed ----------"
             }
         }
         stage("test"){
             steps{
                 echo "----------- unit test started ----------"
                 sh 'mvn surefire-report:report'
-                 echo "----------- unit test Complted ----------"
+                echo "----------- unit test Completed ----------"
             }
         }
-        def registry = 'https://eos.jfrog.io'
         stage("Jar Publish") {
-        steps {
-            script {
+            steps {
+                script {
+                    def registry = 'https://eos.jfrog.io'
                     echo '<--------------- Jar Publish Started --------------->'
-                     def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog"
-                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
-                     def uploadSpec = """{
-                          "files": [
+                    def server = Artifactory.newServer(url: registry+"/artifactory", credentialsId: "jfrog")
+                    def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}"
+                    def uploadSpec = """{
+                        "files": [
                             {
-                              "pattern": "jarstaging/(*)",
-                              "target": "eos-libs-release-local/{1}",
-                              "flat": "false",
-                              "props" : "${properties}",
-                              "exclusions": [ "*.sha1", "*.md5"]
+                                "pattern": "jarstaging/(*)",
+                                "target": "eos-libs-release-local/{1}",
+                                "flat": "false",
+                                "props" : "${properties}",
+                                "exclusions": [ "*.sha1", "*.md5"]
                             }
-                         ]
-                     }"""
-                     def buildInfo = server.upload(uploadSpec)
-                     buildInfo.env.collect()
-                     server.publishBuildInfo(buildInfo)
-                     echo '<--------------- Jar Publish Ended --------------->'  
-            
+                        ]
+                    }"""
+                    def buildInfo = server.upload(uploadSpec)
+                    buildInfo.env.collect()
+                    server.publishBuildInfo(buildInfo)
+                    echo '<--------------- Jar Publish Ended --------------->'  
+                }
             }
         }   
-    }   
-
-
-    }  
+    }
 }
