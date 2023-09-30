@@ -1,3 +1,6 @@
+def registry = 'https://eos.jfrog.io'
+def version  = '2.1.2'
+def imageName = 'eos.jfrog.io/eos-docker-local/ttrend'
 pipeline {
     agent {
         node {
@@ -25,7 +28,6 @@ pipeline {
         stage("Jar Publish") {
             steps {
                 script {
-                    def registry = 'https://eos.jfrog.io'
                     echo '<--------------- Jar Publish Started --------------->'
                     def server = Artifactory.newServer(url: registry+"/artifactory", credentialsId: "jfrog")
                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}"
@@ -46,6 +48,27 @@ pipeline {
                     echo '<--------------- Jar Publish Ended --------------->'  
                 }
             }
-        }   
+        }
+            stage(" Docker Build ") {
+      steps {
+        script {
+           echo '<--------------- Docker Build Started --------------->'
+           app = docker.build(imageName+":"+version)
+           echo '<--------------- Docker Build Ends --------------->'
+        }
+      }
+    }
+
+            stage (" Docker Publish "){
+        steps {
+            script {
+               echo '<--------------- Docker Publish Started --------------->'  
+                docker.withRegistry(registry, 'jfrog'){
+                    app.push()
+                }    
+               echo '<--------------- Docker Publish Ended --------------->'  
+            }
+        }
+    }   
     }
 }
