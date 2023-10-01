@@ -70,10 +70,17 @@ pipeline {
             }
         }
     }   
+    // stage("Deploy"){
+    //     steps {
+    //         script {
+    //             sh './deploy.sh'
+    //         }
+    //     }
+    // }
     stage("Deploy"){
         steps {
             script {
-                sh './deploy.sh'
+                sh 'helm install ttrend ttrend2-0.1.0.tgz'
             }
         }
     }
