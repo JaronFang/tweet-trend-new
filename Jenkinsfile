@@ -70,5 +70,12 @@ pipeline {
             }
         }
     }   
+    stage("Deploy"){
+        steps {
+            script {
+                sh './deploy.sh'
+            }
+        }
+    }
     }
 }
